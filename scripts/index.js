@@ -1,4 +1,7 @@
 const { web3 } = require("hardhat");
+const token1add = "0x459743A42d83654AF85F3d940fa8eb1dB754e212";
+const token2add = "0xC53B3701a6d1C157215F2CC83c7BA04E8caD84C0";
+const dexAdd = "0xf2a8CdAF1Ccb52635990e88Af8Ad368885a38c83";
 
 require("@nomiclabs/hardhat-truffle5");
 const SwappableToken = artifacts.require("SwappableToken");
@@ -6,23 +9,13 @@ const Dex = artifacts.require("Dex");
 
 async function main() {
     const accounts = await web3.eth.getAccounts();
-    const swappabletoken1 = await SwappableToken.new("suka", "suk", 10000);
-    const swappabletoken2 = await SwappableToken.new("blyat", "bly", 10000);
-    const dex = await Dex.new(swappabletoken1.address, swappabletoken2.address);
-    await swappabletoken1.transfer(dex.address, 100, {from: accounts[0]});
-    await swappabletoken2.transfer(dex.address, 100, {from: accounts[0]});
-    await swappabletoken1.transfer(accounts[1], 10);
-    await swappabletoken2.transfer(accounts[1], 10);
-    await swappabletoken1.approve(dex.address, 10000, {from:accounts[1]});
-    await swappabletoken2.approve(dex.address, 10000, {from:accounts[1]});
-    await dex.swap(swappabletoken1.address, swappabletoken2.address, 10, {from: accounts[1]})
-    await dex.swap(swappabletoken2.address, swappabletoken1.address, 20, {from: accounts[1]})
-    await dex.swap(swappabletoken1.address, swappabletoken2.address, 24, {from: accounts[1]})
-    await dex.swap(swappabletoken2.address, swappabletoken1.address, 30, {from: accounts[1]})
-    await dex.swap(swappabletoken1.address, swappabletoken2.address, 41, {from: accounts[1]})
-    await dex.swap(swappabletoken2.address, swappabletoken1.address, 45, {from: accounts[1]})
-    console.log(await dex.balanceOf(swappabletoken1.address, dex.address));
-    console.log(await dex.balanceOf(swappabletoken2.address, dex.address));
+    const dex = await new web3.eth.Contract(Dex.abi, dexAdd);
+    const token1 = await new web3.eth.Contract(SwappableToken.abi, token1add);
+    const token2 = await new web3.eth.Contract(SwappableToken, token2add);
+    console.log(await dex.methods.token1().call());
+    
+    //await dex.methods.approve(dexAdd, 10000).send({from: accounts[0], gas: 100000});
+    console.log(await token1.methods.allowance(accounts[0], dexAdd).call());
     
 }
 
